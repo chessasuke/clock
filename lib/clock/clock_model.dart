@@ -1,17 +1,29 @@
 import 'package:flutter/cupertino.dart';
 
 class ClockModel extends ChangeNotifier {
-  ClockModel({int initialTime = 2000}) {
-    _initialTime = initialTime;
-    _timeLeft = _initialTime;
+  ClockModel({int? initialTime, bool countDown = false}) {
+    if (countDown && initialTime == null)
+      assert(countDown == true && initialTime != null,
+          'To count down, an initial time must be provided');
+    _countDown = countDown;
+
+    /// if counting down, initial time must not be null
+    /// set time left to initial time
+    if (countDown && initialTime != null) {
+      _initialTime = initialTime;
+    }
+    if (_initialTime != null) {
+      _timeLeft = _initialTime!;
+    } else
+      _timeLeft = 0;
   }
 
   /// if counting down or up, default to down
-  bool _timeMode = false;
+  late bool _countDown;
 
   /// Only for countdown mode
   /// initial time a player has
-  late int _initialTime;
+  int? _initialTime;
 
   /// time left until 0
   late int _timeLeft;
@@ -23,24 +35,26 @@ class ClockModel extends ChangeNotifier {
   bool _controller = true;
 
   int get timeElapsed => _timeElapsed;
-  bool get timeMode => _timeMode;
+  bool get timeMode => _countDown;
 
   Stream<int> runClock() async* {
-    if (_timeMode)
+    if (_countDown) {
       while (_controller) {
-        await Future.delayed(
-          Duration(milliseconds: 10),
-        );
-        print('_timeElapsed: $_timeElapsed');
-        yield _timeElapsed++;
-      }
-    else {
-      while (_controller) {
-        if (_timeLeft == 0) break;
+        if (_timeLeft == 0) {
+          break;
+        }
         await Future.delayed(
           Duration(milliseconds: 10),
         );
         yield _timeLeft--;
+      }
+    } else {
+      while (_controller) {
+        await Future.delayed(
+          Duration(milliseconds: 10),
+        );
+//        print('_timeElapsed: $_timeElapsed');
+        yield _timeElapsed++;
       }
     }
   }
@@ -58,7 +72,9 @@ class ClockModel extends ChangeNotifier {
   }
 
   resetTimer() {
-    _timeLeft = _initialTime;
+    if (_countDown) {
+      _timeLeft = _initialTime!;
+    }
     _timeElapsed = 0;
     notifyListeners();
   }

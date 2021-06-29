@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'clock.dart';
+import 'clock/clock.dart';
 
 void main() {
   runApp(ProviderScope(child: MyApp()));
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: ClockWidget(),
+      home: Scaffold(body: Center(child: ClockWidget(countDown: false))),
     );
   }
 }
